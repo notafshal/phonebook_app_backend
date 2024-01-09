@@ -28,6 +28,10 @@ let persons = [
     number: "9834242231",
   },
 ];
+app.use(express.json());
+const logger = (req, res, next) => {
+  next();
+};
 //l. a hardcoded list of phonebook entries from the address http://localhost:3001/api/persons
 app.get("/api/persons", (req, res) => {
   res.json(persons);
@@ -49,11 +53,21 @@ app.delete("/api/persons/:id", (req, res) => {
 });
 //4.Expand the backend so that new phonebook entries
 //can be added by making HTTP POST requests to the address http://localhost:3001/api/persons.
-app.use(express.json());
-app.post("/api/persons", (req, res) => {
+
+app.post("/api/persons", logger, (req, res) => {
   const person = req.body;
-  console.log(person);
-  res.json(person);
+  const newObj = {
+    id: Math.random() * 20,
+    name: "",
+    number: "",
+  };
+  if (newObj !== person) {
+    res.json(persons.concat(person, newObj));
+  } else if (newObj.name === "") {
+    res.json('Error:"name must have value"');
+  } else {
+    res.json('Error:"name must be unique"');
+  }
 });
 
 app.listen(3001, () => {
